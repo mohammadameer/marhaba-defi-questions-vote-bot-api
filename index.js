@@ -13,28 +13,51 @@ app.use(express.json());
 const port = process.env.PORT || 3000;
 
 app.get("/questions", async (req, res) => {
-  const questions = await database.getAllQuestions();
+  const query = {
+    hide: false,
+  };
+  if (req.query.answered == "false") {
+    query.answered = false;
+  }
+
+  if (req.query.saved == "true") {
+    query.saved = true;
+  }
+
+  const questions = await database.getAllQuestions(query);
+
   res.json(questions);
 });
 
 app.delete("/questions/:number", async (req, res) => {
-  const question = await database.deleteQuestion({
+  const question = await database.updateQuestion({
     number: parseInt(req.params.number),
+    data: { $set: { hide: true } },
   });
-  console.log("req.params.number", req.params.number);
-  console.log("question", question);
+
   res.json(question);
 });
 
 app.put("/questions/:number", async (req, res) => {
+  const data = {};
+  if (req.body.answer) {
+    data.answer = req.body.answer;
+    data.answered = true;
+  }
+  if (req.body.saved == false || req.body.saved == true) {
+    data.saved = req.body.saved;
+  }
+
+  console.log("req.body", req.body);
+  console.log("data", data);
+
   const question = await database.updateQuestion({
     number: parseInt(req.params.number),
-    data: { $set: { answer: req.body.answer } },
+    data: { $set: { ...data } },
   });
 
-  console.log("number", req.params.number);
-  console.log("req", req.body);
   console.log("question", question);
+
   res.json(question);
 });
 

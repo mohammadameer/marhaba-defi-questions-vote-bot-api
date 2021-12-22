@@ -130,8 +130,8 @@ let getQuestion = async ({ number }) => {
   return question ? question[0] : null;
 };
 
-let getAllQuestions = async () => {
-  let questions = await query();
+let getAllQuestions = async (queryData) => {
+  let questions = await query(queryData);
 
   return questions;
 };
